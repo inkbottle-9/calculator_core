@@ -9,10 +9,12 @@
 #include <algorithm>
 #include <iomanip>
 
+#include <ctime>
+
 
 //宏定义
-//#define DLL_EXPORTS//导出DLL
-//#define INSIDE_DLL//DLL内部
+#define DLL_EXPORTS//导出DLL
+#define INSIDE_DLL//DLL内部
 
 #ifdef __linux__
 #ifdef DLL_EXPORTS
@@ -94,6 +96,7 @@ namespace NS_Calculator
 	{
 		//检查是否是大写字符
 		inline bool check_upperCaseChar(const char& c);
+		inline bool check_lowerCaseChar(const char& c);
 	}
 
 
@@ -105,9 +108,10 @@ namespace NS_Calculator
 
 		struct Operator
 		{
+			bool enable = true;//可用性
 			int priority;//优先级
 			int type;//操作符的目数, 区间[0,2]
-			int location;//0代表前置运算符, 一代表后置运算符或中置运算符, -1代表什么忘记了
+			int location;//0代表前置运算符, 1代表后置运算符或中置运算符, -1代表其它情况(括号)
 			string identifier;//运算符符号
 		};
 
@@ -138,6 +142,7 @@ namespace NS_Calculator
 			Cot,//余切"cot"
 			Arra,//排列数"ARR"
 			Comb,//组合数"COM"
+			Dice,//骰子"D"
 			BraL,//左括号"("
 			BraR,//右括号")"
 			Act,//正"+"
@@ -161,14 +166,16 @@ namespace NS_Calculator
 
 		static const Operator operators[Operator_End];
 		//下面某些被舍弃了! 现在封装在上面这个数组里面
-		static const int offset;//偏移量
-		static const char* operatorsIdentifier[Operator_End];//运算符标识符
-		static const int operatorsIdentifierLength[Operator_End];//运算符标识符长度
+		//static const int offset;//偏移量
+		//static const char* operatorsIdentifier[Operator_End];//运算符标识符
+		//static const int operatorsIdentifierLength[Operator_End];//运算符标识符长度
 		static const Operand constantsValue[Constant_End];//常量值
-		static const int priority[Operator_End];//优先级
-		static const int operatorsType[Operator_End];//操作符目数
-		static const int operatorsPosition[Operator_End];//操作符位置
+		//static const int priority[Operator_End];//优先级
+		//static const int operatorsType[Operator_End];//操作符目数
+		//static const int operatorsPosition[Operator_End];//操作符位置
 		static const Operand angleUnitsConvertConstant;//角单位转换常量
+		static const size_t lenLimit_expression;//表达式长度限制
+
 
 
 	public:
@@ -218,7 +225,7 @@ namespace NS_Calculator
 
 		Operand getResult()const;//获取运算结果(返回double)
 		string getFormattedResult()const;//获取格式化结果(返回字符串)
-		Operand calculate(const std::string& expression);//计算(便携函数, 内部调用下面的函数)
+		Operand calculate(const std::string& expression);//计算(便携函数, 内部调用其他函数实现)
 		Operand calculate();//计算
 		bool setExpression(const string& tarExpression);//设置表达式
 		string getInfixExpression();//获取中缀表达式
@@ -237,7 +244,7 @@ namespace NS_Calculator
 		Operand _getValue(const Operand& operand1, const Operand& operand2, const Index_operator& op);//计算值
 		Index_operator _scanOperator(int& index);//扫描操作符,步进index
 		Index_constant _scanConstant(int& index);//扫描常量,步进index
-		bool _operatorCopmare(const char* str, const Index_operator& op)noexcept;//操作符匹配(大小写不敏感)
+		int _operatorCopmare(const char* str, const Index_operator& op)noexcept;//操作符匹配(大小写不敏感)
 
 	};
 }

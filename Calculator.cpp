@@ -41,11 +41,9 @@ namespace NS_Calculator
 
 	const char* Exception::what()const
 	{
-		return (exceptionDetail[this->exceptionType]+": "+info_extra).c_str();
+		//return (exceptionDetail[this->exceptionType]+": "+info_extra).c_str();
+		return exceptionDetail[this->exceptionType].c_str();
 	}
-
-
-
 
 
 
@@ -55,6 +53,12 @@ namespace NS_Calculator
 		{
 			return (c >= 'A' && c <= 'Z');
 		}
+
+		bool check_lowerCaseChar(const char& c)
+		{
+			return (c >= 'a' && c <= 'z');
+		}
+
 	}
 
 
@@ -63,59 +67,65 @@ namespace NS_Calculator
 
 
 	//类的私有静态常量定义
+
+	//操作符定义
 	const Calculator::Operator Calculator::operators[Calculator::Operator_End] =
-	{
-	{10,0,0," "},
-	{0,2,1,"+"},//加号
-	{0,2,1,"-"},//减号
-	{1,2,1,"*"},//乘号
-	{1,2,1,"/"},//除号
-	{3,2,1,"^"},//幂次方
-	{5,1,1,"!"},//阶乘
-	{1,2,1,"%"},//取模
-	{4,1,0,"abs"},//绝对值
-	{2,2,1,"log"},//对数
-	{2,1,0,"sin"},//正弦
-	{2,1,0,"cos"},//余弦
-	{2,1,0,"tan"},//正切
-	{2,1,0,"arcsin"},//反正弦
-	{2,1,0,"arccos"},//反余弦
-	{2,1,0,"arctan"},//反正切
-	{2,1,0,"cot"},//余切
-	{2,2,1,"arr"},//排列数
-	{2,2,1,"com"},//组合数
-	{10,0,-1,"("},//左括号
-	{10,0,-1,")"},//右括号
-	{9,1,0,"+"},//正号
-	{9,1,0,"-"},//负号
+	{//注意, 这里的标识符只能用小写
+	{true,10,0,0," "},
+	{true,0,2,1,"+"},//加号
+	{true,0,2,1,"-"},//减号
+	{true,1,2,1,"*"},//乘号
+	{true,1,2,1,"/"},//除号
+	{true,3,2,1,"^"},//幂次方
+	{true,5,1,1,"!"},//阶乘
+	{true,1,2,1,"%"},//取模
+	{true,4,1,0,"abs"},//绝对值
+	{true,2,2,1,"log"},//对数
+	{true,2,1,0,"sin"},//正弦
+	{true,2,1,0,"cos"},//余弦
+	{true,2,1,0,"tan"},//正切
+	{true,2,1,0,"arcsin"},//反正弦
+	{true,2,1,0,"arccos"},//反余弦
+	{true,2,1,0,"arctan"},//反正切
+	{true,2,1,0,"cot"},//余切
+	{true,2,2,1,"arr"},//排列数
+	{true,2,2,1,"com"},//组合数
+	{true,6,2,1,"d"},//骰子
+	{true,10,0,-1,"("},//左括号
+	{true,10,0,-1,")"},//右括号
+	{false,9,1,0,"a"},//正号
+	{false,9,1,0,"n"},//负号
 	};
 
 
+	//废弃
+	//const int Calculator::offset = 6;
 
-
-	const int Calculator::offset = 6;
-
-	const char* Calculator::operatorsIdentifier[Calculator::Operator_End] = 
-	{ " ","+","-","*","/","^","!","%","abs","log","sin","cos","tan","arcsin","arccos","arctan","cot","arr","com","(",")","a","n" };
+	//废弃
+	/*const char* Calculator::operatorsIdentifier[Calculator::Operator_End] = 
+	{ " ","+","-","*","/","^","!","%","abs","log","sin","cos","tan","arcsin","arccos","arctan","cot","arr","com","(",")","a","n" };*/
 	
-	const int Calculator::operatorsIdentifierLength[Calculator::Operator_End] = 
-	{ -1,1,1,1,1,1,1,1,3,3,3,3,3,6,6,6,3,3,3,1,1,-1,-1 };
+	//废弃
+	//const int Calculator::operatorsIdentifierLength[Calculator::Operator_End] = 
+	//{ -1,1,1,1,1,1,1,1,3,3,3,3,3,6,6,6,3,3,3,1,1,-1,-1 };
+	//废弃
+	//const int Calculator::priority[Calculator::Operator_End] = 
+	//{ 10,0,0,1,1,3,5,1,4,2,2,2,2,2,2,2,2,2,2,10,10,9,9 };//优先级
+	//废弃
+	//const int Calculator::operatorsType[Calculator::Operator_End] = 
+	//{ 0,2,2,2,2,2,1,2,1,2,1,1,1,1,1,1,1,2,2,0,0,1,1 };//操作符目数(类型)
+	//废弃
+	//const int Calculator::operatorsPosition[Calculator::Operator_End] =
+	//{ 0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,1,1,-1,-1,0,0 };//操作符位置
 
-	const int Calculator::priority[Calculator::Operator_End] = 
-	{ 10,0,0,1,1,3,5,1,4,2,2,2,2,2,2,2,2,2,2,10,10,9,9 };//优先级
-
-	const int Calculator::operatorsType[Calculator::Operator_End] = 
-	{ 0,2,2,2,2,2,1,2,1,2,1,1,1,1,1,1,1,2,2,0,0,1,1 };//操作符目数(类型)
-
-	const int Calculator::operatorsPosition[Calculator::Operator_End] =
-	{ 0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,1,1,-1,-1,0,0 };//操作符位置
-
-	const Calculator::Operand Calculator::constantsValue[Calculator::Constant_End] = 
+	const Calculator::Operand Calculator::constantsValue[Calculator::Constant_End] =
 	{ 3.1415926535897932384626,2.71828183 };//内置的两个常量
 
 	
 
 	const Calculator::Operand Calculator::angleUnitsConvertConstant = 180 / (Calculator::constantsValue[Calculator::PI]);//角单位转换常量
+	const size_t Calculator::lenLimit_expression = 1000;//长度限制为500
+
 
 	//const vector<string> Calculator::cmdIdentifier[10] =
 	//{
@@ -133,7 +143,7 @@ namespace NS_Calculator
 		, angleUnit(Rad)
 		, displayDigitSeparator(false)
 	{
-
+		srand(time(NULL));//设置随机种子
 	}
 
 	Calculator::~Calculator()
@@ -144,21 +154,6 @@ namespace NS_Calculator
 
 	Calculator::Operand Calculator::calculate(const std::string& _expression)//计算
 	{
-		//try
-		//{
-		//	setExpression(_expression);//设置新字符串
-		//	_parseString();//分析字符串得到中缀表达式
-		//	_convertToPostfix();//转换为后缀表达式
-		//	result = _calculatePostfix();//计算结果
-		//}
-		//catch (Exception& e)
-		//{
-		//	//		cout<<e.what();
-		//	throw e;
-		//}
-
-		//return result;
-
 		this->setExpression(_expression);//设置表达式
 		return this->calculate();//调用标准函数
 	}
@@ -170,7 +165,7 @@ namespace NS_Calculator
 			//		setExpression(_expression);//设置新字符串
 			if (expression == nullptr)
 				throw Exception(Exception::ExpressionNotSet);//抛出异常(表达式未设置)
-			if (std::strlen(expression) > 500)
+			if (std::strlen(expression) > lenLimit_expression)
 				throw Exception(Exception::ExpressionTooLong);//抛出异常(表达式过长)
 			_parseString();//分析字符串得到中缀表达式
 			_convertToPostfix();//转换为后缀表达式
@@ -256,9 +251,10 @@ namespace NS_Calculator
 		return resultStr;
 	}
 
+	//设置表达式
 	bool Calculator::setExpression(const string& tarExpression)//设置表达式
 	{
-		int length = tarExpression.size();
+		size_t length = tarExpression.size();
 
 		try
 		{
@@ -300,7 +296,7 @@ namespace NS_Calculator
 				ss << iter->_operand << ",";
 			else
 			{
-				ss << operatorsIdentifier[iter->_operator] << ",";
+				ss << operators[iter->_operator].identifier << ",";
 			}
 			iter++;//步进
 		}
@@ -325,7 +321,8 @@ namespace NS_Calculator
 				ss << iter->_operand << ",";
 			else
 			{
-				ss << operatorsIdentifier[iter->_operator] << ",";
+				//ss << operatorsIdentifier[iter->_operator] << ",";
+				ss << operators[iter->_operator].identifier << ",";
 			}
 			iter++;//步进
 		}
@@ -514,7 +511,7 @@ namespace NS_Calculator
 					//{
 					//	throw Exception(Exception::SyntaxError);//抛出异常(语法错误)
 					//}
-					if (!lastIsOperand && operatorsPosition[iter->_operator] == 1)
+					if (!lastIsOperand && operators[iter->_operator].location == 1)
 					{
 						throw Exception(Exception::SyntaxError);//抛出异常(语法错误)
 					}
@@ -530,11 +527,17 @@ namespace NS_Calculator
 						;//无法弹出其他OP
 					else
 					{
-						//逐个弹出栈中比将要入栈的OP优先级高的OP
-						while ((!opStack.empty()) && priority[opStack.top()._operator] >= priority[iter->_operator])
+						//逐个弹出栈中比将要入栈的OP优先级高的OP(前置运算符除外)
+						while ((!opStack.empty()))
 						{
-							tempOperatorNode = opStack.top();//获取栈顶元素
-							if (tempOperatorNode._operator != BraL)
+							Node& tempOperatorNode = opStack.top();//获取栈顶元素
+							int temp = operators[tempOperatorNode._operator].priority - operators[iter->_operator].priority;
+							/*if (operators[opStack.top()._operator].priority >= operators[iter->_operator].priority)
+								;*/
+							if (temp < 0)
+								break;
+							
+							if (tempOperatorNode._operator != BraL && operators[tempOperatorNode._operator].location != 0)
 								postfixExpression.push_back(tempOperatorNode);//置入目标队列
 							else
 								break;
@@ -543,7 +546,7 @@ namespace NS_Calculator
 					}
 
 					opStack.push(*iter);//置入栈
-					if (operatorsPosition[iter->_operator] == 0)//前置运算符
+					if (operators[iter->_operator].location == 0)//前置运算符
 					{
 						//lastIsPrepositiveOperator = true;//标记为前置操作符
 						lastIsOperand = false;//标记为操作符
@@ -576,14 +579,27 @@ namespace NS_Calculator
 
 	Calculator::Index_operator Calculator::_scanOperator(int& index)//扫描操作符,未找到返回None
 	{
+		Index_operator index_bestMatch{ -1 };//最佳匹配索引
+		int len_bestFit{ 0 };//最佳匹配长度
 		//长操作符
 		for (int i = 1; i < Operator_End; i++)
 		{
-			if (_operatorCopmare(this->expression + index, i))
+			if (!operators[i].enable)
+				continue;//跳过某些操作符
+			const int&& temp = _operatorCopmare(this->expression + index, i);
+			if (temp > len_bestFit)
+			{
 				//return index += operatorsIdentifierLength[i], i;
-				return index += operators[i].identifier.size(), i;
+				//return index += operators[i].identifier.size(), i;
+				len_bestFit = temp;//更新最佳匹配长度
+				index_bestMatch = i;//更新最佳匹配操作符索引
+			}
+				
 		}
-		return None;//非操作符(不步进)
+		if (len_bestFit != operators[index_bestMatch].identifier.length())
+			return None;
+		else
+			return index += len_bestFit, index_bestMatch;
 	}
 
 	Calculator::Index_constant Calculator::_scanConstant(int& index)//扫描常量,步进index
@@ -600,7 +616,7 @@ namespace NS_Calculator
 			//		return constantsValue[NaLo];
 			return NaLo;
 		}
-		else if (strncmp(this->expression + index, "ANS", 2) == 0)
+		else if (strncmp(this->expression + index, "ANS", 3) == 0)
 		{
 			index += 3;
 			return Ans;
@@ -632,7 +648,7 @@ namespace NS_Calculator
 			{
 				//操作符
 				//根据运算符类型(单,双目)从栈中获取操作数
-				if (operatorsType[crtNode._operator] == 1)//单目运算符
+				if (operators[crtNode._operator].type == 1)//单目运算符
 				{
 					if (operandStack.empty())
 						throw Exception(Exception::NoOperand);//抛出异常(无操作数)
@@ -822,12 +838,33 @@ namespace NS_Calculator
 			return -operand1;
 		case Abs:
 			return operand1 < 0 ? -operand1 : operand1;
+		case Dice:
+		{
+			Calculator::Operand operand_1 = ceil(operand1);
+			Calculator::Operand operand_2 = ceil(operand2);
+			int sum = 0;
+			//检查是否整数, 或者是否存在负数, 同时骰子不能超过100面
+			if (operand1 < 0 || operand2 < 0 || operand_1 != operand1 || operand_2 != operand2 || operand_2>100 || operand_1>1000000)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+
+			if (operand_2 == 0)//特殊情况, 0面骰子设置返回0
+				return 0;
+
+			for (int i = 0;i<operand1; i++)
+			{
+				int temp = -1;
+				temp = rand() % static_cast<int>(operand_2) + 1;
+				//srand(temp * 9997);
+				sum += temp;
+			}
+			return sum;
+		}
 		default:
 			return 0;
 		}
 	}
 
-	bool Calculator::_operatorCopmare(const char* str, const Index_operator& op)noexcept
+	int Calculator::_operatorCopmare(const char* str, const Index_operator& op)noexcept
 	{
 		int i;
 		char c;
@@ -841,110 +878,18 @@ namespace NS_Calculator
 				break;
 			//c = operatorsIdentifier[op][i];
 			c = operators[op].identifier[i];
-			if (str[i] == c || (Dependencies::check_upperCaseChar(str[i])&&str[i] == c - 32))//不区分大小写
+			if (str[i] == c || (Dependencies::check_lowerCaseChar(c) && str[i] == c - 32))//不区分大小写
 				continue;
 			else
 				break;
 		}
-		if (i == len)
-			return true;
-		else
-			return false;
+		//if (i == len)
+		//	return true;
+		//else
+		//	return false;
+		return i;
 	}
 
-
-	//int Calculator::selectCommand(const string& cmdName)
-	//{
-	//	int i, j, cmdNum = End, limit;
-
-	//	for (i = 0; i <= cmdNum; i++)
-	//	{
-	//		limit = cmdIdentifier[i].size();//获取别称数量
-	//		for (j = 0; j < limit; j++)//逐个比较别称
-	//		{
-	//			if (cmdName == cmdIdentifier[i][j])
-	//				return i;
-	//		}
-	//	}
-	//	throw Exception(Exception::UnknownCommand);
-	//	return -1;
-	//}
-
-	//int Calculator::cmd_Cal(const Command& cmd, istream& is, ostream& os)
-	//{
-	//	Calculator cal;
-
-	//	bool
-	//		opt_DS = false,
-	//		opt_n = false,
-	//		opt_s = false,
-	//		opt_f = false,
-	//		opt_p = false,
-	//		opt_DI = false;
-	//	int opt_p_number = 2;//选项附带的参数
-	//	string argument_main1;//主参数1
-
-	//	int i, limit = cmd.options.size();
-	//	string opt;
-	//	for (i = 0; i < limit; i++)
-	//	{
-	//		opt = cmd.options[i].identifier;
-	//		if (opt == "-DS")
-	//			opt_DS = true;
-	//		else if (opt == "-n")
-	//		{
-	//			opt_n = true;
-	//			cal.setFormat(Calculator::Norm);
-	//		}
-	//		else if (opt == "-s")
-	//		{
-	//			opt_s = true;
-	//			cal.setFormat(Calculator::Sci);
-	//		}
-	//		else if (opt == "-f")
-	//		{
-	//			opt_f = true;
-	//			cal.setFormat(Calculator::Fix);
-	//		}
-	//		else if (opt == "-p")
-	//		{
-	//			opt_p = true;
-	//			int temp = cmd.options[i].index_optionArgument;
-	//			if (temp >= 0)
-	//				opt_p_number = stoi(cmd.arguments_option[temp]);//转换为int
-	//			else
-	//				throw Exception(Exception::ArgumentMismatching);
-	//		}
-	//		else if (opt == "-DI")
-	//			opt_DI = true;
-	//		else
-	//			throw Exception(Exception::UnknownOption);
-	//	}
-
-
-	//	if (cmd.arguments_main.size() == 1)
-	//		argument_main1 = cmd.arguments_main[0];
-	//	else
-	//		throw Exception(Exception::ArgumentMismatching);//抛出异常(参数不匹配)
-
-	//	cal.setDisplayDigitSeparator(opt_DS);
-	//	cal.setPrecision(opt_p_number);
-	//	cal.setExpression(argument_main1);
-	//	cal.calculate();
-
-	//	os << cal.getFormattedResult() << endl;
-	//	if (opt_DI)
-	//		os << "Infix  :" << cal.getInfixExpression() << endl << "Postfix:" << cal.getPostfixExpression() << endl;
-
-	//	return 0;
-	//}
-
-	//int Calculator::cmd_Help(const Command& cmd, istream& is, ostream& os)
-	//{
-	//	os <<
-	//		TextPackage::text_help_Calculator;
-	//	return 0;
-	//}
 
 }
 
