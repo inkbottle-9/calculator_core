@@ -12,9 +12,9 @@
 #include <ctime>
 
 
-//ºê¶¨Òå
-#define DLL_EXPORTS//µ¼³öDLL
-#define INSIDE_DLL//DLLÄÚ²¿
+//å®å®šä¹‰
+#define DLL_EXPORTS//å¯¼å‡ºDLL
+#define INSIDE_DLL//DLLå†…éƒ¨
 
 #ifdef __linux__
 #ifdef DLL_EXPORTS
@@ -22,7 +22,7 @@
 #endif
 #endif
 
-//µ¼³ö¶¯Ì¬¿â
+//å¯¼å‡ºåŠ¨æ€åº“
 #ifdef DLL_EXPORTS
 #ifdef INSIDE_DLL
 #define TEXT_ANALYSIS_EXPORT __declspec(dllexport)
@@ -39,42 +39,42 @@ namespace NS_Calculator
 
 	using namespace std;
 
-	//Òì³£Àà
+	//å¼‚å¸¸ç±»
 	class Exception :public std::exception
 	{
-		///Ò»Ğ©¶¨Òå
+		///ä¸€äº›å®šä¹‰
 	public:
-		//Ã¶¾Ù Òì³£ÀàĞÍ{ÊıÖµ¶ÁÈ¡´íÎó,À¨ºÅ²»Æ¥Åä,ÆäËû}
+		//æšä¸¾ å¼‚å¸¸ç±»å‹{æ•°å€¼è¯»å–é”™è¯¯,æ‹¬å·ä¸åŒ¹é…,å…¶ä»–}
 		enum ExceptionType
 		{
-			//CalculatorÀàÏà¹ØÒì³£
-			UnknownSymbol,//Î´Öª·ûºÅ
-			BracketMismatching,//À¨ºÅ²»Æ¥Åä
-			NoOperand,//ÎŞ²Ù×÷Êı
-			NoOperator,//ÎŞ²Ù×÷·û
-			SyntaxError,//Óï·¨´íÎó
-			MathError,//ÊıÑ§´íÎó
-			ExpressionNotSet,//ÎŞ±í´ïÊ½
-			ExpressionTooLong,//±í´ïÊ½¹ı³¤
-			ValueOverflow,//Òç³ö
+			//Calculatorç±»ç›¸å…³å¼‚å¸¸
+			UnknownSymbol,//æœªçŸ¥ç¬¦å·
+			BracketMismatching,//æ‹¬å·ä¸åŒ¹é…
+			NoOperand,//æ— æ“ä½œæ•°
+			NoOperator,//æ— æ“ä½œç¬¦
+			SyntaxError,//è¯­æ³•é”™è¯¯
+			MathError,//æ•°å­¦é”™è¯¯
+			ExpressionNotSet,//æ— è¡¨è¾¾å¼
+			ExpressionTooLong,//è¡¨è¾¾å¼è¿‡é•¿
+			ValueOverflow,//æº¢å‡º
 
-			//¿ØÖÆÌ¨Òì³£
-			UnknownCommand,//Î´ÖªÃüÁî
-			UnknownOption,//Î´ÖªÑ¡Ïî
-			ExpectMoreOption,//ÆÚÍû¸ü¶àÑ¡Ïî
-			ArgumentMismatching,//²ÎÊı²»Æ¥Åä
-			MutexOptionExists,//´æÔÚ»¥³âÑ¡Ïî
-			KeyOptionNotFound,//È±ÉÙ±ØÒªÑ¡Ïî
+			//æ§åˆ¶å°å¼‚å¸¸
+			UnknownCommand,//æœªçŸ¥å‘½ä»¤
+			UnknownOption,//æœªçŸ¥é€‰é¡¹
+			ExpectMoreOption,//æœŸæœ›æ›´å¤šé€‰é¡¹
+			ArgumentMismatching,//å‚æ•°ä¸åŒ¹é…
+			MutexOptionExists,//å­˜åœ¨äº’æ–¥é€‰é¡¹
+			KeyOptionNotFound,//ç¼ºå°‘å¿…è¦é€‰é¡¹
 
-			OtherException,//ÆäËûÒì³£
-			ExceptionType_End//ÉÚ±ø
+			OtherException,//å…¶ä»–å¼‚å¸¸
+			ExceptionType_End//å“¨å…µ
 		};
 		static const string exceptionDetail[ExceptionType_End];
 
-		///³£¹æ³ÉÔ±
+		///å¸¸è§„æˆå‘˜
 	private:
-		ExceptionType exceptionType;//Òì³£ÀàĞÍ
-		string info_extra;//¶îÍâĞÅÏ¢
+		ExceptionType exceptionType;//å¼‚å¸¸ç±»å‹
+		string info_extra;//é¢å¤–ä¿¡æ¯
 
 	public:
 		explicit Exception(const ExceptionType& exceptionType = OtherException, string _info_extra= "No more infomations.");
@@ -83,168 +83,203 @@ namespace NS_Calculator
 
 	};
 
-	/**	¹æ»®Ò»ÏÂ:
-	 *	1.·ÖÎö×Ö·û´®,µÃµ½ÖĞ×º±í´ïÊ½
-	 *	2.½«ÖĞ×º±í´ïÊ½×ª»»Îªºó×º±í´ïÊ½
-	 *	3.¼ÆËãºó×º±í´ïÊ½
-	 *	ÍøÖ·¼ÇÂ¼
+	/**	è§„åˆ’ä¸€ä¸‹:
+	 *	1.åˆ†æå­—ç¬¦ä¸²,å¾—åˆ°ä¸­ç¼€è¡¨è¾¾å¼
+	 *	2.å°†ä¸­ç¼€è¡¨è¾¾å¼è½¬æ¢ä¸ºåç¼€è¡¨è¾¾å¼
+	 *	3.è®¡ç®—åç¼€è¡¨è¾¾å¼
+	 *	ç½‘å€è®°å½•
 	 *	https://www.cnblogs.com/hantalk/p/8734511.html
 	 */
 
 
 	namespace Dependencies
 	{
-		//¼ì²éÊÇ·ñÊÇ´óĞ´×Ö·û
+		//æ£€æŸ¥æ˜¯å¦æ˜¯å¤§å†™å­—ç¬¦
 		inline bool check_upperCaseChar(const char& c);
 		inline bool check_lowerCaseChar(const char& c);
 	}
 
 
-	 //¼ÆËãÆ÷
+	 //è®¡ç®—å™¨
 	class TEXT_ANALYSIS_EXPORT Calculator
 	{
-		//Ò»Ğ©¶¨Òå:
+		//ä¸€äº›å®šä¹‰:
 	public:
 
 		struct Operator
 		{
-			bool enable = true;//¿ÉÓÃĞÔ
-			int priority;//ÓÅÏÈ¼¶
-			int type;//²Ù×÷·ûµÄÄ¿Êı, Çø¼ä[0,2]
-			int location;//0´ú±íÇ°ÖÃÔËËã·û, 1´ú±íºóÖÃÔËËã·û»òÖĞÖÃÔËËã·û, -1´ú±íÆäËüÇé¿ö(À¨ºÅ)
-			string identifier;//ÔËËã·û·ûºÅ
+			bool enable = true;//å¯ç”¨æ€§
+			int priority;//ä¼˜å…ˆçº§
+			int type;//æ“ä½œç¬¦çš„ç›®æ•°, åŒºé—´[0,2]
+			int location;//0ä»£è¡¨å‰ç½®è¿ç®—ç¬¦, 1ä»£è¡¨åç½®è¿ç®—ç¬¦æˆ–ä¸­ç½®è¿ç®—ç¬¦, -1ä»£è¡¨å…¶å®ƒæƒ…å†µ(æ‹¬å·)
+			string identifier;//è¿ç®—ç¬¦ç¬¦å·
 		};
 
 
-		typedef int Index_operator;//²Ù×÷·û
-		typedef int Index_constant;//³£Á¿
-		typedef long double Operand;//²Ù×÷Êı
+		typedef int Index_operator;//æ“ä½œç¬¦
+		typedef int Index_constant;//å¸¸é‡
+		typedef long double Operand;//æ“ä½œæ•°
 
-		//Ã¶¾Ù ²Ù×÷·û {¼ÓºÅ"+",¼õºÅ"-",³ËºÅ"*",³ıºÅ"/",Ãİ"^",½×³Ë"!",Ä£"%",¶ÔÊı"log",ÕıÏÒ"sin",ÓàÏÒ"cos",ÕıÇĞ"tan",·´ÕıÏÒ"arcsin",·´ÓàÏÒ"arccos",·´ÕıÇĞ"arctan",ÓàÇĞ"cot",ÅÅÁĞ"ARR",×éºÏ"COM",×óÀ¨ºÅ"(",ÓÒÀ¨ºÅ")",ÕıºÃ'+',¸ººÅ"-"};
+		//æšä¸¾ æ“ä½œç¬¦ {åŠ å·"+",å‡å·"-",ä¹˜å·"*",é™¤å·"/",å¹‚"^",é˜¶ä¹˜"!",æ¨¡"%",å¯¹æ•°"log",æ­£å¼¦"sin",ä½™å¼¦"cos",æ­£åˆ‡"tan",åæ­£å¼¦"arcsin",åä½™å¼¦"arccos",åæ­£åˆ‡"arctan",ä½™åˆ‡"cot",æ’åˆ—"ARR",ç»„åˆ"COM",å·¦æ‹¬å·"(",å³æ‹¬å·")",æ­£å¥½'+',è´Ÿå·"-"};
 		enum Operators
 		{
-			None = 0,//ÎŞ
-			Plus,//¼ÓºÅ"+"
-			Minu,//¼õºÅ"-"
-			Mult,//³ËºÅ"*"
-			Divi,//³ıºÅ"/"
-			Pow,//Ãİ"^"
-			Fact,//½×³Ë"!"
-			Mod,//Ä£"%"
-			Abs,//¾ø¶ÔÖµ"ABS"
-			Log,//¶ÔÊı"log"
-			Sin,//ÕıÏÒ"sin"
-			Cos,//ÓàÏÒ"cos"
-			Tan,//ÕıÇĞ"tan"
-			ASin,//·´ÕıÏÒ"arcsin"
-			ACos,//·´ÓàÏÒ"arccos"
-			ATan,//·´ÕıÇĞ"arctan"
-			Cot,//ÓàÇĞ"cot"
-			Arra,//ÅÅÁĞÊı"ARR"
-			Comb,//×éºÏÊı"COM"
-			Dice,//÷»×Ó"D"
-			BraL,//×óÀ¨ºÅ"("
-			BraR,//ÓÒÀ¨ºÅ")"
-			Act,//Õı"+"
-			Neg,//¸º"-"
-			Operator_End//ÉÚ±ø
+			None = 0,//æ— 
+
+			//åŸºæœ¬
+			Plus,//åŠ å·"+"
+			Minu,//å‡å·"-"
+			Mult,//ä¹˜å·"*"
+			Divi,//é™¤å·"/"
+			Pow,//å¹‚"^"
+
+			//å¢å¼º
+			Fact,//é˜¶ä¹˜"!"
+			Mod,//æ¨¡"%"
+			Abs,//ç»å¯¹å€¼"ABS"
+			Log,//å¯¹æ•°"log"
+
+			//ä¸‰è§’å‡½æ•°
+			Sin,//æ­£å¼¦"sin"
+			Cos,//ä½™å¼¦"cos"
+			Tan,//æ­£åˆ‡"tan"
+			ASin,//åæ­£å¼¦"arcsin"
+			ACos,//åä½™å¼¦"arccos"
+			ATan,//åæ­£åˆ‡"arctan"
+			Cot,//ä½™åˆ‡"cot"
+
+			//å¤å…¸æ¦‚å‹
+			Arra,//æ’åˆ—æ•°"ARR"
+			Comb,//ç»„åˆæ•°"COM"
+
+			//é€»è¾‘è¿ç®—
+			And,//ä¸"&&"
+			Or,//æˆ–"||"
+			Not,//é"!!"
+			Xor,//å¼‚æˆ–"!||"
+
+			//æ¯”è¾ƒè¿ç®—
+			JG,//å¤§äº
+			JGE,//å¤§äºç­‰äº
+			JL,//å°äº
+			JLE,//å°äºç­‰äº
+			JE,//ç­‰äº
+			JNE,//ä¸ç­‰äº
+
+			//ä½è¿ç®—
+			BLS,//å·¦ç§»ä½"<<"
+			BRS,//å³ç§»ä½">>"
+			Band,//æŒ‰ä½ä¸"&"
+			Bor,//æŒ‰ä½æˆ–"|"
+			Bnot,//æŒ‰ä½å–å"~"
+			Bxor,//æŒ‰ä½å¼‚æˆ–"!|"
+
+			//ç‰¹æ®Š
+			Dice,//éª°å­"D"
+
+			BraL,//å·¦æ‹¬å·"("
+			BraR,//å³æ‹¬å·")"
+			Act,//æ­£"+"
+			Neg,//è´Ÿ"-"
+			Operator_End//å“¨å…µ
 		};
-		//Ã¶¾Ù ³£Á¿ {Ô²ÖÜÂÊ"PI",×ÔÈ»¶ÔÊı'e'}
+		//æšä¸¾ å¸¸é‡ {åœ†å‘¨ç‡"PI",è‡ªç„¶å¯¹æ•°'e'}
 		enum Constants
 		{
 			NotConstant = -1,
-			PI,//Ô²ÖÜÂÊ"PI"
-			NaLo,//×ÔÈ»¶ÔÊı"e"
-			Ans,//ÉÏÒ»´Î½á¹û
-			Constant_End//ÉÚ±ø
+			PI,//åœ†å‘¨ç‡"PI"
+			NaLo,//è‡ªç„¶å¯¹æ•°"e"
+			True,//çœŸ
+			False,//å‡
+			Ans,//ä¸Šä¸€æ¬¡ç»“æœ
+			Constant_End//å“¨å…µ
 		};
-		//Ã¶¾Ù ¸ñÊ½Ä£Ê½ {Î»Êı,¿ÆÑ§,³£¹æ}
+		//æšä¸¾ æ ¼å¼æ¨¡å¼ {ä½æ•°,ç§‘å­¦,å¸¸è§„}
 		enum FormatMode { Fix = 0, Sci, Norm };
-		//Ã¶¾Ù ½Ç¶Èµ¥Î» {½Ç¶È,»¡¶È}
+		//æšä¸¾ è§’åº¦å•ä½ {è§’åº¦,å¼§åº¦}
 		enum AngleUnit { Deg = 0, Rad };
 
 
 		static const Operator operators[Operator_End];
-		//ÏÂÃæÄ³Ğ©±»ÉáÆúÁË! ÏÖÔÚ·â×°ÔÚÉÏÃæÕâ¸öÊı×éÀïÃæ
-		//static const int offset;//Æ«ÒÆÁ¿
-		//static const char* operatorsIdentifier[Operator_End];//ÔËËã·û±êÊ¶·û
-		//static const int operatorsIdentifierLength[Operator_End];//ÔËËã·û±êÊ¶·û³¤¶È
-		static const Operand constantsValue[Constant_End];//³£Á¿Öµ
-		//static const int priority[Operator_End];//ÓÅÏÈ¼¶
-		//static const int operatorsType[Operator_End];//²Ù×÷·ûÄ¿Êı
-		//static const int operatorsPosition[Operator_End];//²Ù×÷·ûÎ»ÖÃ
-		static const Operand angleUnitsConvertConstant;//½Çµ¥Î»×ª»»³£Á¿
-		static const size_t lenLimit_expression;//±í´ïÊ½³¤¶ÈÏŞÖÆ
+		//ä¸‹é¢æŸäº›è¢«èˆå¼ƒäº†! ç°åœ¨å°è£…åœ¨ä¸Šé¢è¿™ä¸ªæ•°ç»„é‡Œé¢
+		//static const int offset;//åç§»é‡
+		//static const char* operatorsIdentifier[Operator_End];//è¿ç®—ç¬¦æ ‡è¯†ç¬¦
+		//static const int operatorsIdentifierLength[Operator_End];//è¿ç®—ç¬¦æ ‡è¯†ç¬¦é•¿åº¦
+		static const Operand constantsValue[Constant_End];//å¸¸é‡å€¼
+		//static const int priority[Operator_End];//ä¼˜å…ˆçº§
+		//static const int operatorsType[Operator_End];//æ“ä½œç¬¦ç›®æ•°
+		//static const int operatorsPosition[Operator_End];//æ“ä½œç¬¦ä½ç½®
+		static const Operand angleUnitsConvertConstant;//è§’å•ä½è½¬æ¢å¸¸é‡
+		static const size_t lenLimit_expression;//è¡¨è¾¾å¼é•¿åº¦é™åˆ¶
 
 
 
 	public:
 
 
-		class Node//½Úµã
+		class Node//èŠ‚ç‚¹
 		{
 		public:
-			Index_operator _operator;//²Ù×÷·û
-			Operand _operand;//²Ù×÷Êı
+			Index_operator _operator;//æ“ä½œç¬¦
+			Operand _operand;//æ“ä½œæ•°
 		};
-		typedef std::list<Node> Expression;//±í´ïÊ½
-		typedef std::stack<Node> OperatorStack;//²Ù×÷·ûÕ»
-	//    typedef std::list<Node>::iterator IteratorToNode;//µü´úÆ÷
+		typedef std::list<Node> Expression;//è¡¨è¾¾å¼
+		typedef std::stack<Node> OperatorStack;//æ“ä½œç¬¦æ ˆ
+	//    typedef std::list<Node>::iterator IteratorToNode;//è¿­ä»£å™¨
 
-		typedef std::stack<Operand> OperandStack;//²Ù×÷ÊıÕ»
+		typedef std::stack<Operand> OperandStack;//æ“ä½œæ•°æ ˆ
 
 
 	private:
-		//³£¹æ³ÉÔ±
-	//		std::string expression;//×Ö·û´®±í´ïÊ½
-		char* expression;//×Ö·û´®±í´ïÊ½
-		Operand result;//½á¹û
-		Expression infixExpression;//ÖĞ×º±í´ïÊ½
-		Expression postfixExpression;//ºó×º±í´ïÊ½
+		//å¸¸è§„æˆå‘˜
+	//		std::string expression;//å­—ç¬¦ä¸²è¡¨è¾¾å¼
+		char* expression;//å­—ç¬¦ä¸²è¡¨è¾¾å¼
+		Operand result;//ç»“æœ
+		Expression infixExpression;//ä¸­ç¼€è¡¨è¾¾å¼
+		Expression postfixExpression;//åç¼€è¡¨è¾¾å¼
 
-		FormatMode formatMode;//µ±Ç°¸ñÊ½Ä£Ê½
-		AngleUnit angleUnit;//½Ç¶Èµ¥Î»
-		int precision;//¾«¶È
-		bool displayDigitSeparator;//ÏÔÊ¾Î»·Ö¸ô·û
+		FormatMode formatMode;//å½“å‰æ ¼å¼æ¨¡å¼
+		AngleUnit angleUnit;//è§’åº¦å•ä½
+		int precision;//ç²¾åº¦
+		bool displayDigitSeparator;//æ˜¾ç¤ºä½åˆ†éš”ç¬¦
 
 
 	public:
-		//³£¹æ³ÉÔ±º¯Êı
+		//å¸¸è§„æˆå‘˜å‡½æ•°
 
-		//¹¹Ôìº¯Êı
+		//æ„é€ å‡½æ•°
 		Calculator();
-		Calculator(const Calculator& another) = delete;//²»Ö§³Ö¸´ÖÆ¹¹Ôì
-		//Îö¹¹º¯Êı
+		Calculator(const Calculator& another) = delete;//ä¸æ”¯æŒå¤åˆ¶æ„é€ 
+		//ææ„å‡½æ•°
 		~Calculator();
 
-		//»ù±¾²Ù×÷º¯Êı
+		//åŸºæœ¬æ“ä½œå‡½æ•°
 		void setFormat(const FormatMode& format = Norm, const int& precision = 2);
-		void setPrecision(const int& precision);//ÉèÖÃ¾«¶È
-		void setAngleUnit(const AngleUnit& unit = Rad);//ÉèÖÃ½Ç¶Èµ¥Î»
-		void setDisplayDigitSeparator(const bool& displayState = false);//ÉèÖÃÊÇ·ñÏÔÊ¾Êı×Ö·Ö¸ô·û","
+		void setPrecision(const int& precision);//è®¾ç½®ç²¾åº¦
+		void setAngleUnit(const AngleUnit& unit = Rad);//è®¾ç½®è§’åº¦å•ä½
+		void setDisplayDigitSeparator(const bool& displayState = false);//è®¾ç½®æ˜¯å¦æ˜¾ç¤ºæ•°å­—åˆ†éš”ç¬¦","
 
-		Operand getResult()const;//»ñÈ¡ÔËËã½á¹û(·µ»Ødouble)
-		string getFormattedResult()const;//»ñÈ¡¸ñÊ½»¯½á¹û(·µ»Ø×Ö·û´®)
-		Operand calculate(const std::string& expression);//¼ÆËã(±ãĞ¯º¯Êı, ÄÚ²¿µ÷ÓÃÆäËûº¯ÊıÊµÏÖ)
-		Operand calculate();//¼ÆËã
-		bool setExpression(const string& tarExpression);//ÉèÖÃ±í´ïÊ½
-		string getInfixExpression();//»ñÈ¡ÖĞ×º±í´ïÊ½
-		string getPostfixExpression();//»ñÈ¡ºó×º±í´ïÊ½
+		Operand getResult()const;//è·å–è¿ç®—ç»“æœ(è¿”å›double)
+		string getFormattedResult()const;//è·å–æ ¼å¼åŒ–ç»“æœ(è¿”å›å­—ç¬¦ä¸²)
+		Operand calculate(const std::string& expression);//è®¡ç®—(ä¾¿æºå‡½æ•°, å†…éƒ¨è°ƒç”¨å…¶ä»–å‡½æ•°å®ç°)
+		Operand calculate();//è®¡ç®—
+		bool setExpression(const string& tarExpression);//è®¾ç½®è¡¨è¾¾å¼
+		string getInfixExpression();//è·å–ä¸­ç¼€è¡¨è¾¾å¼
+		string getPostfixExpression();//è·å–åç¼€è¡¨è¾¾å¼
 
-		Calculator& operator=(const Calculator& another) = delete;//²»Ö§³Ö¸³Öµ²Ù×÷
+		Calculator& operator=(const Calculator& another) = delete;//ä¸æ”¯æŒèµ‹å€¼æ“ä½œ
 
-	//    static Operand Calculate(const std::string &expression);//¾²Ì¬º¯Êı¼ÆËã
+	//    static Operand Calculate(const std::string &expression);//é™æ€å‡½æ•°è®¡ç®—
 
 	private:
-		//ÄÚ²¿º¯Êı
+		//å†…éƒ¨å‡½æ•°
 		void _jumpToNext(int& index);
-		bool _parseString();//·ÖÎö×Ö·û´®(¿ÉÄÜÅ×³öÒì³£)
-		bool _convertToPostfix();//×ª»»Îªºó×º±í´ïÊ½(¿ÉÄÜÅ×³öÒì³£)
-		Operand _calculatePostfix();//¼ÆËãºó×º±í´ïÊ½½á¹û(¿ÉÄÜÅ×³öÒì³£)
-		Operand _getValue(const Operand& operand1, const Operand& operand2, const Index_operator& op);//¼ÆËãÖµ
-		Index_operator _scanOperator(int& index);//É¨Ãè²Ù×÷·û,²½½øindex
-		Index_constant _scanConstant(int& index);//É¨Ãè³£Á¿,²½½øindex
-		int _operatorCopmare(const char* str, const Index_operator& op)noexcept;//²Ù×÷·ûÆ¥Åä(´óĞ¡Ğ´²»Ãô¸Ğ)
+		bool _parseString();//åˆ†æå­—ç¬¦ä¸²(å¯èƒ½æŠ›å‡ºå¼‚å¸¸)
+		bool _convertToPostfix();//è½¬æ¢ä¸ºåç¼€è¡¨è¾¾å¼(å¯èƒ½æŠ›å‡ºå¼‚å¸¸)
+		Operand _calculatePostfix();//è®¡ç®—åç¼€è¡¨è¾¾å¼ç»“æœ(å¯èƒ½æŠ›å‡ºå¼‚å¸¸)
+		Operand _getValue(const Operand& operand1, const Operand& operand2, const Index_operator& op);//è®¡ç®—å€¼
+		Index_operator _scanOperator(int& index);//æ‰«ææ“ä½œç¬¦,æ­¥è¿›index(è¯¥å‡½æ•°æ€»æ˜¯è¿›è¡Œæœ€é•¿åŒ¹é…)
+		Index_constant _scanConstant(int& index);//æ‰«æå¸¸é‡,æ­¥è¿›index
+		int _operatorCopmare(const char* str, const Index_operator& op)noexcept;//æ“ä½œç¬¦åŒ¹é…(è¿”å›ä¸æŒ‡å®šæ“ä½œç¬¦çš„æœ€å¤§åŒ¹é…é•¿åº¦)(å¤§å°å†™ä¸æ•æ„Ÿ)
 
 	};
 }

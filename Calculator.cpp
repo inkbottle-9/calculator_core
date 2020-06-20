@@ -77,10 +77,12 @@ namespace NS_Calculator
 	{true,1,2,1,"*"},//乘号
 	{true,1,2,1,"/"},//除号
 	{true,3,2,1,"^"},//幂次方
+
 	{true,5,1,1,"!"},//阶乘
 	{true,1,2,1,"%"},//取模
 	{true,4,1,0,"abs"},//绝对值
 	{true,2,2,1,"log"},//对数
+
 	{true,2,1,0,"sin"},//正弦
 	{true,2,1,0,"cos"},//余弦
 	{true,2,1,0,"tan"},//正切
@@ -88,9 +90,31 @@ namespace NS_Calculator
 	{true,2,1,0,"arccos"},//反余弦
 	{true,2,1,0,"arctan"},//反正切
 	{true,2,1,0,"cot"},//余切
+
 	{true,2,2,1,"arr"},//排列数
 	{true,2,2,1,"com"},//组合数
+
+	{true,2,2,1,"&&"},//与
+	{true,2,2,1,"||"},//或
+	{true,2,1,0,"!!"},//非
+	{true,2,2,1,"!||"},//异或
+
+	{true,2,2,1,">"},//大于
+	{true,2,2,1,">="},//大于等于
+	{true,2,2,1,"<"},//小于
+	{true,2,2,1,"<="},//小于等于
+	{true,2,2,1,"=="},//等于
+	{true,2,2,1,"!="},//不等于
+
+	{true,2,2,1,"<<"},//左移位
+	{true,2,2,1,">>"},//右移位
+	{true,2,2,1,"&"},//按位与
+	{true,2,2,1,"|"},//按位或
+	{true,2,1,0,"~"},//按位取反
+	{true,2,2,1,"!|"},//按位异或
+
 	{true,6,2,1,"d"},//骰子
+
 	{true,10,0,-1,"("},//左括号
 	{true,10,0,-1,")"},//右括号
 	{false,9,1,0,"a"},//正号
@@ -119,7 +143,7 @@ namespace NS_Calculator
 	//{ 0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,1,1,-1,-1,0,0 };//操作符位置
 
 	const Calculator::Operand Calculator::constantsValue[Calculator::Constant_End] =
-	{ 3.1415926535897932384626,2.71828183 };//内置的两个常量
+	{ 3.1415926535897932384626,2.71828183,1.0,0.0 };//内置的两个常量
 
 	
 
@@ -582,21 +606,23 @@ namespace NS_Calculator
 		Index_operator index_bestMatch{ -1 };//最佳匹配索引
 		int len_bestFit{ 0 };//最佳匹配长度
 		//长操作符
+
+		//逐个比较操作符
 		for (int i = 1; i < Operator_End; i++)
 		{
 			if (!operators[i].enable)
 				continue;//跳过某些操作符
-			const int&& temp = _operatorCopmare(this->expression + index, i);
-			if (temp > len_bestFit)
+			const int&& len = _operatorCopmare(this->expression + index, i);
+			if (len != operators[i].identifier.length())
+				continue;
+			if (len > len_bestFit)
 			{
-				//return index += operatorsIdentifierLength[i], i;
-				//return index += operators[i].identifier.size(), i;
-				len_bestFit = temp;//更新最佳匹配长度
+				len_bestFit = len;//更新最佳匹配长度
 				index_bestMatch = i;//更新最佳匹配操作符索引
 			}
 				
 		}
-		if (len_bestFit != operators[index_bestMatch].identifier.length())
+		if (index_bestMatch < 0)
 			return None;
 		else
 			return index += len_bestFit, index_bestMatch;
@@ -615,6 +641,18 @@ namespace NS_Calculator
 			index++;
 			//		return constantsValue[NaLo];
 			return NaLo;
+		}
+		else if (strncmp(this->expression + index, "TRUE", 4) == 0)
+		{
+			index+=4;
+			//		return constantsValue[NaLo];
+			return True;
+		}
+		else if (strncmp(this->expression + index, "FALSE", 5) == 0)
+		{
+			index+=5;
+			//		return constantsValue[NaLo];
+			return False;
 		}
 		else if (strncmp(this->expression + index, "ANS", 3) == 0)
 		{
@@ -708,6 +746,7 @@ namespace NS_Calculator
 		}
 		case Pow:
 			return std::pow(operand1, operand2);
+
 		case Fact://阶乘
 		{
 			Calculator::Operand temp = ceil(operand1);//向零取整
@@ -723,6 +762,8 @@ namespace NS_Calculator
 			return res;
 		}
 		case Mod:
+		case Abs:
+			return operand1 < 0 ? -operand1 : operand1;
 		{
 			long long operand_1 = ceil(operand1);
 			long long operand_2 = ceil(operand2);
@@ -736,6 +777,7 @@ namespace NS_Calculator
 				throw Exception(Exception::MathError);//抛出异常(数学错误)
 			return std::log(operand2) / std::log(operand1);//换底公式(operand1是底数)
 		}
+		
 		case Sin:
 		{
 			Calculator::Operand operand_1 = operand1;
@@ -796,6 +838,7 @@ namespace NS_Calculator
 				throw Exception(Exception::MathError);//抛出异常(数学错误)
 			return 1.0 / std::tan(operand_1);
 		}
+		
 		case Arra://排列数
 		{
 			Calculator::Operand operand_1 = ceil(operand1);
@@ -832,13 +875,96 @@ namespace NS_Calculator
 			res /= fact;
 			return res;
 		}
-		case Act:
-			return operand1;
-		case Neg:
-			return -operand1;
-		case Abs:
-			return operand1 < 0 ? -operand1 : operand1;
-		case Dice:
+		
+		case And:
+			return (operand1 != 0) && (operand2 != 0);
+		case Or:
+			return (operand1 != 0) || (operand2 != 0);
+		case Not:
+			return (operand1 == 0);
+		case Xor:
+			return (operand1 != 0) != (operand2 != 0);
+
+
+		case JG:
+			return operand1 > operand2;
+		case JGE:
+			return operand1 >= operand2;
+		case JL:
+			return operand1 < operand2;
+		case JLE:
+			return operand1 <= operand2;
+		case JE:
+			return operand1 == operand2;
+		case JNE:
+			return operand1 != operand2;
+
+		case BLS:
+		{
+			if(operand2<0)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			Calculator::Operand temp = ceil(operand1);//向零取整
+			if (temp != operand1)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			temp = ceil(operand2);
+			if (temp != operand2)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			return static_cast<Calculator::Operand>(static_cast<long long>(operand1)<< static_cast<long long>(operand2));
+		}
+		case BRS:
+		{
+			if (operand2 < 0)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			Calculator::Operand temp = ceil(operand1);//向零取整
+			if (temp != operand1)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			temp = ceil(operand2);
+			if (temp != operand2)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			return static_cast<Calculator::Operand>(static_cast<long long>(operand1) >> static_cast<long long>(operand2));
+		}
+		case Band:
+		{
+			Calculator::Operand temp = ceil(operand1);//向零取整
+			if (temp != operand1)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			temp = ceil(operand2);
+			if (temp != operand2)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			return static_cast<Calculator::Operand>(static_cast<long long>(operand1) & static_cast<long long>(operand2));
+		}
+		case Bor:
+		{
+			Calculator::Operand temp = ceil(operand1);//向零取整
+			if (temp != operand1)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			temp = ceil(operand2);
+			if (temp != operand2)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			return static_cast<Calculator::Operand>(static_cast<long long>(operand1) | static_cast<long long>(operand2));
+		}
+		case Bnot:
+		{
+			Calculator::Operand temp = ceil(operand1);//向零取整
+			if (temp != operand1)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			temp = ceil(operand2);
+			if (temp != operand2)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			return static_cast<Calculator::Operand>(~static_cast<long long>(operand1));
+		}
+		case Bxor:
+		{
+			Calculator::Operand temp = ceil(operand1);//向零取整
+			if (temp != operand1)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			temp = ceil(operand2);
+			if (temp != operand2)
+				throw Exception(Exception::MathError);//抛出异常(数学错误)
+			return static_cast<Calculator::Operand>(static_cast<long long>(operand1) ^ static_cast<long long>(operand2));
+		}
+
+		case Dice://骰子
 		{
 			Calculator::Operand operand_1 = ceil(operand1);
 			Calculator::Operand operand_2 = ceil(operand2);
@@ -850,7 +976,7 @@ namespace NS_Calculator
 			if (operand_2 == 0)//特殊情况, 0面骰子设置返回0
 				return 0;
 
-			for (int i = 0;i<operand1; i++)
+			for (int i = 0; i < operand1; i++)
 			{
 				int temp = -1;
 				temp = rand() % static_cast<int>(operand_2) + 1;
@@ -859,6 +985,14 @@ namespace NS_Calculator
 			}
 			return sum;
 		}
+
+		case Act:
+			return operand1;
+		case Neg:
+			return -operand1;
+		
+
+		
 		default:
 			return 0;
 		}
@@ -869,14 +1003,12 @@ namespace NS_Calculator
 		int i;
 		char c;
 		bool res = false;
-		//int len = operatorsIdentifierLength[op];
 		int len = operators[op].identifier.size();
 
 		for (i = 0; i < len; i++)
 		{
 			if (str[i] == '\0')//结束
 				break;
-			//c = operatorsIdentifier[op][i];
 			c = operators[op].identifier[i];
 			if (str[i] == c || (Dependencies::check_lowerCaseChar(c) && str[i] == c - 32))//不区分大小写
 				continue;
